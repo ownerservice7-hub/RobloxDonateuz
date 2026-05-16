@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DonateRoblox — Uzbekiston №1</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --r:#ff2244;--r2:#ff6688;--gold:#ffcc00;--cyan:#00eeff;
+  --bg:#07070e;--bg2:#0d0d1a;--card:#111122;--card2:#161628;
+  --border:rgba(255,34,68,0.18);--border2:rgba(255,255,255,0.06);
+  --text:#f0f0ff;--muted:#6666aa;--green:#00ff88;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.bg-anim{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.bg-anim::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 40% at 20% 20%,rgba(255,34,68,.07) 0%,transparent 70%),
+  radial-gradient(ellipse 50% 50% at 80% 80%,rgba(0,238,255,.04) 0%,transparent 70%);
+  animation:bgP 8s ease-in-out infinite alternate;}
+.bg-anim::after{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,34,68,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,34,68,.04) 1px,transparent 1px);
+  background-size:48px 48px;}
+@keyframes bgP{from{opacity:.7}to{opacity:1}}
+.particle{position:fixed;width:2px;height:2px;border-radius:50%;pointer-events:none;z-index:0;animation:float linear infinite;opacity:0;}
+@keyframes float{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.6}90%{opacity:.2}100%{transform:translateY(-100px) scale(1);opacity:0}}
+
+/* AUTH */
+#auth-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.auth-wrap{position:relative;z-index:1;width:100%;max-width:420px;padding:20px;}
+.auth-glow{position:absolute;inset:-60px;background:radial-gradient(ellipse,rgba(255,34,68,.12) 0%,transparent 70%);pointer-events:none;animation:aG 3s ease-in-out infinite alternate;}
+@keyframes aG{from{transform:scale(.9);opacity:.7}to{transform:scale(1.1);opacity:1}}
+.auth-card{background:var(--card);border:1px solid var(--border);position:relative;overflow:hidden;animation:sUp .6s cubic-bezier(.16,1,.3,1);}
+@keyframes sUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--r),var(--r2),var(--r),transparent);background-size:200% 100%;animation:scan 2s linear infinite;}
+@keyframes scan{from{background-position:-200% 0}to{background-position:200% 0}}
+.auth-header{padding:36px 36px 24px;text-align:center;}
+.auth-logo-big{font-family:'Share Tech Mono',monospace;font-size:28px;font-weight:700;letter-spacing:4px;margin-bottom:6px;}
+.auth-logo-big .r{color:var(--r);text-shadow:0 0 20px rgba(255,34,68,.6);}
+.auth-badge{display:inline-block;background:rgba(255,204,0,.1);border:1px solid rgba(255,204,0,.3);color:var(--gold);font-size:10px;letter-spacing:3px;padding:3px 12px;margin-top:6px;}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border2);margin:0 36px;}
+.auth-tab{flex:1;padding:12px;text-align:center;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .3s;}
+.auth-tab.active{color:var(--r);border-bottom-color:var(--r);}
+.auth-body{padding:28px 36px 36px;}
+.inp-g{position:relative;margin-bottom:16px;}
+.inp-ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;opacity:.5;}
+.a-input{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:13px 14px 13px 42px;font-family:'Exo 2',sans-serif;font-size:15px;outline:none;transition:all .3s;}
+.a-input:focus{border-color:var(--r);box-shadow:0 0 0 3px rgba(255,34,68,.08);}
+.a-input::placeholder{color:var(--muted);}
+.a-btn{width:100%;background:linear-gradient(135deg,var(--r),#cc1133);color:white;border:none;padding:14px;font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:3px;cursor:pointer;position:relative;overflow:hidden;transition:all .3s;margin-top:4px;}
+.a-btn:hover{box-shadow:0 0 30px rgba(255,34,68,.4),0 4px 20px rgba(255,34,68,.3);transform:translateY(-1px);}
+
+/* ADMIN SCREEN */
+#admin-screen{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);z-index:2000;display:none;align-items:center;justify-content:center;}
+#admin-screen.show{display:flex;}
+
+/* APP */
+#app{display:none;position:relative;z-index:1;min-height:100vh;}
+#app.show{display:block;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;height:64px;background:rgba(13,13,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;}
+.tb-logo{font-family:'Share Tech Mono',monospace;font-size:17px;letter-spacing:2px;flex:1;}
+.tb-logo .r{color:var(--r);text-shadow:0 0 12px rgba(255,34,68,.5);}
+.tb-right{display:flex;align-items:center;gap:12px;}
+.bal-pill{display:flex;align-items:center;gap:8px;background:rgba(255,204,0,.06);border:1px solid rgba(255,204,0,.2);padding:7px 16px;font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--gold);}
+.bal-pill.bump{animation:bump .4s ease;}
+@keyframes bump{0%,100%{transform:scale(1)}50%{transform:scale(1.08);box-shadow:0 0 16px rgba(255,204,0,.3)}}
+.adm-pill{background:transparent;border:1px solid var(--border2);color:var(--muted);padding:7px 14px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all .3s;}
+.adm-pill:hover{border-color:var(--r);color:var(--r);}
+.tb-av{width:38px;height:38px;background:linear-gradient(135deg,var(--r),#880022);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;cursor:pointer;position:relative;overflow:hidden;border:1px solid rgba(255,34,68,.3);transition:all .3s;}
+.tb-av:hover{box-shadow:0 0 16px rgba(255,34,68,.4);}
+.tb-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+
+/* NAV */
+.nav{background:rgba(13,13,26,.7);backdrop-filter:blur(8px);border-bottom:1px solid var(--border2);display:flex;padding:0 20px;overflow-x:auto;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.ni{display:flex;align-items:center;gap:7px;padding:15px 18px;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .25s;position:relative;}
+.ni:hover{color:var(--text);}
+.ni.active{color:var(--r);border-bottom-color:var(--r);}
+.ni .dot{width:6px;height:6px;background:var(--r);border-radius:50%;display:none;animation:dP 1.5s ease-in-out infinite;position:absolute;top:10px;right:6px;}
+.ni .dot.show{display:block;}
+@keyframes dP{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.5}}
+
+/* CONTENT */
+.content{padding:28px 24px;max-width:920px;margin:0 auto;}
+.page{display:none;animation:fIn .3s ease;}
+.page.active{display:block;}
+@keyframes fIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION TITLE */
+.stitle{display:flex;align-items:center;gap:14px;margin-bottom:22px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--muted);}
+.stitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.stitle .ac{color:var(--r);}
+
+/* WELCOME BANNER */
+.wb{position:relative;background:var(--card);border:1px solid var(--border);padding:36px 40px;margin-bottom:32px;overflow:hidden;}
+.wb::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--r),var(--r2),var(--gold));}
+.wb::after{content:'ROBLOX';position:absolute;right:-10px;bottom:-20px;font-family:'Share Tech Mono',monospace;font-size:90px;font-weight:900;color:rgba(255,34,68,.04);pointer-events:none;letter-spacing:-4px;}
+.wb-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,34,68,.08);border:1px solid rgba(255,34,68,.2);color:var(--r);font-size:10px;letter-spacing:3px;padding:4px 12px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;}
+.wb-badge::before{content:'●';animation:dP 1.5s infinite;}
+.wb-title{font-size:26px;font-weight:900;line-height:1.3;margin-bottom:12px;}
+.wb-title .hi{color:var(--r);}
+.wb-desc{color:#9999bb;font-size:15px;line-height:1.7;max-width:480px;margin-bottom:24px;}
+.dev-link{display:inline-flex;align-items:center;gap:10px;background:transparent;border:1px solid var(--r);color:var(--r);padding:11px 22px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-decoration:none;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.dev-link::before{content:'';position:absolute;inset:0;background:var(--r);transform:scaleX(0);transform-origin:left;transition:transform .3s;z-index:0;}
+.dev-link:hover::before{transform:scaleX(1);}
+.dev-link:hover{color:white;}
+.dev-link span{position:relative;z-index:1;}
+
+/* SHOP */
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;margin-bottom:32px;}
+.sc{background:var(--card);border:1px solid var(--border2);padding:22px 16px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,34,68,.08),transparent 70%);opacity:0;transition:opacity .3s;}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--r),transparent);transform:scaleX(0);transition:transform .3s;}
+.sc:hover{border-color:var(--r);transform:translateY(-4px);box-shadow:0 12px 32px rgba(255,34,68,.15);}
+.sc:hover::before{opacity:1;}
+.sc:hover::after{transform:scaleX(1);}
+.sc.pop{border-color:rgba(255,204,0,.3);}
+.sc.pop::after{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.sc.pop:hover{border-color:var(--gold);box-shadow:0 12px 32px rgba(255,204,0,.15);}
+.pop-badge{position:absolute;top:-1px;right:-1px;background:var(--gold);color:#000;font-size:8px;font-weight:900;letter-spacing:1px;padding:3px 8px;font-family:'Share Tech Mono',monospace;}
+.sc-icon{font-size:30px;margin-bottom:10px;}
+.sc-amt{font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);margin-bottom:2px;}
+.sc-lbl{font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
+.sc-price{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;}
+.sc-btn{width:100%;background:rgba(255,34,68,.1);border:1px solid rgba(255,34,68,.3);color:var(--r);padding:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all .3s;}
+.sc-btn:hover{background:var(--r);color:white;border-color:var(--r);}
+
+/* CARDS / WALLET */
+.wcard{background:var(--card);border:1px solid var(--border2);padding:26px;margin-bottom:16px;}
+.s-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:14px;}
+.card-disp{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(255,255,255,.06);padding:20px 22px;margin:14px 0;position:relative;overflow:hidden;}
+.card-disp::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:radial-gradient(circle,rgba(0,238,255,.08),transparent);border-radius:50%;}
+.card-num{font-family:'Share Tech Mono',monospace;font-size:18px;letter-spacing:4px;color:var(--text);margin-bottom:6px;}
+.card-sub{font-size:12px;color:var(--muted);}
+.copy-btn{display:inline-flex;align-items:center;gap:8px;background:rgba(0,238,255,.06);border:1px solid rgba(0,238,255,.2);color:var(--cyan);padding:9px 18px;font-size:13px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;cursor:pointer;transition:all .3s;}
+.copy-btn:hover{background:rgba(0,238,255,.12);box-shadow:0 0 16px rgba(0,238,255,.15);}
+.copy-btn.ok{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.06);}
+.min-warn{display:flex;align-items:center;gap:10px;background:rgba(255,204,0,.05);border:1px solid rgba(255,204,0,.15);padding:12px 16px;margin-top:14px;font-size:13px;color:var(--gold);}
+.w-input{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:13px 16px;font-family:'Exo 2',sans-serif;font-size:15px;outline:none;margin-bottom:12px;transition:all .3s;}
+.w-input:focus{border-color:var(--r);}
+.w-input::placeholder{color:var(--muted);}
+
+/* BUTTONS */
+.g-btn{background:linear-gradient(135deg,var(--r),#cc1133);border:none;color:white;padding:12px 24px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;transition:all .3s;}
+.g-btn:hover{box-shadow:0 0 24px rgba(255,34,68,.35);transform:translateY(-1px);}
+.g-btn.sec{background:transparent;border:1px solid var(--border2);color:var(--muted);}
+.g-btn.sec:hover{border-color:var(--r);color:var(--r);box-shadow:none;transform:none;}
+.g-btn.grn{background:linear-gradient(135deg,#00cc66,#009944);}
+.g-btn.grn:hover{box-shadow:0 0 24px rgba(0,204,102,.35);}
+.g-btn.sml{padding:8px 14px;font-size:10px;}
+
+/* HISTORY */
+.htbl{width:100%;border-collapse:collapse;}
+.htbl th{background:var(--card2);padding:12px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border2);}
+.htbl td{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.03);font-size:14px;}
+.htbl tr:hover td{background:rgba(255,34,68,.02);}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:1px;font-family:'Share Tech Mono',monospace;}
+.b-g{background:rgba(0,255,136,.08);color:var(--green);border:1px solid rgba(0,255,136,.25);}
+.b-r{background:rgba(255,34,68,.08);color:var(--r);border:1px solid rgba(255,34,68,.25);}
+.b-y{background:rgba(255,204,0,.08);color:var(--gold);border:1px solid rgba(255,204,0,.25);}
+
+/* SETTINGS */
+.s-card{background:var(--card);border:1px solid var(--border2);padding:26px;margin-bottom:16px;}
+.av-wrap{display:flex;align-items:center;gap:20px;}
+.big-av{width:70px;height:70px;background:linear-gradient(135deg,var(--r),#880022);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;cursor:pointer;position:relative;overflow:hidden;border:1px solid rgba(255,34,68,.3);transition:all .3s;}
+.big-av:hover{box-shadow:0 0 20px rgba(255,34,68,.3);}
+.big-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+.ir{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ir:last-child{border-bottom:none;}
+.ik{color:var(--muted);font-size:14px;}
+.iv{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);}
+.out-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,34,68,.3);color:var(--r);padding:11px 22px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;margin-top:18px;transition:all .3s;}
+.out-btn:hover{background:rgba(255,34,68,.08);box-shadow:0 0 16px rgba(255,34,68,.15);}
+
+/* ADMIN */
+.a-panel{background:var(--card);border:1px solid rgba(255,34,68,.25);padding:28px;margin-bottom:18px;position:relative;overflow:hidden;}
+.a-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--r),var(--r2),transparent);}
+.a-ptitle{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--r);margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.a-cnt{background:var(--r);color:white;padding:2px 8px;font-size:10px;}
+.a-cnt.gold{background:var(--gold);color:#000;}
+.a-inp{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;font-family:'Exo 2',sans-serif;font-size:14px;outline:none;margin-right:8px;margin-bottom:8px;transition:all .3s;}
+.a-inp:focus{border-color:var(--r);}
+.a-inp::placeholder{color:var(--muted);}
+.a-inp.w{width:100%;margin-right:0;}
+.a-inp.h{width:180px;}
+
+/* PENDING ITEMS */
+.pitem{background:var(--bg2);border:1px solid var(--border2);padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;animation:sIn .3s ease;}
+@keyframes sIn{from{transform:translateX(-10px);opacity:0}to{transform:translateX(0);opacity:1}}
+.pitem:hover{border-color:var(--border);}
+.pi-type{font-size:13px;font-weight:700;margin-bottom:4px;}
+.pi-det{font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;}
+.pi-amt{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--gold);font-weight:700;white-space:nowrap;}
+.pi-btns{display:flex;gap:8px;}
+
+/* ACCOUNTS */
+.acc-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.acc-row:last-child{border-bottom:none;}
+.acc-n{font-size:14px;font-weight:600;}
+.acc-i{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);}
+.acc-b{font-size:13px;color:var(--gold);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--r);padding:36px;width:420px;max-width:90vw;animation:sUp .4s cubic-bezier(.16,1,.3,1);}
+.modal h3{font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:3px;color:var(--r);margin-bottom:6px;}
+.modal p{color:var(--muted);font-size:13px;margin-bottom:20px;}
+.modal-btns{display:flex;gap:10px;margin-top:16px;}
+
+/* NOTIFICATION */
+.notif{position:fixed;bottom:28px;right:28px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--r);padding:14px 20px;font-size:14px;z-index:9999;max-width:320px;transform:translateX(150%);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.notif.show{transform:translateX(0);opacity:1;}
+.notif.success{border-left-color:var(--green);}
+.notif.warning{border-left-color:var(--gold);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);}
+</style>
+</head>
+<body>
+<div class="bg-anim"></div>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-glow"></div>
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo-big"><span class="r">Donate</span><span>Roblox</span></div>
+        <div class="auth-badge">UZBEKISTON №1 ROBUX PLATFORMASI</div>
+      </div>
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="authTab('login')">KIRISH</div>
+        <div class="auth-tab" onclick="authTab('reg')">RO'YXAT</div>
+      </div>
+      <div class="auth-body">
+        <div class="inp-g"><span class="inp-ic">👤</span><input class="a-input" id="a-name" type="text" placeholder="Ismingiz"></div>
+        <div class="inp-g"><span class="inp-ic">🔒</span><input class="a-input" id="a-pass" type="password" placeholder="Parol" onkeydown="if(event.key==='Enter')doAuth()"></div>
+        <button class="a-btn" id="a-sub" onclick="doAuth()">KIRISH</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="admin-screen">
+  <div class="auth-wrap" style="max-width:380px">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo-big"><span class="r">ADMIN</span></div>
+        <div class="auth-badge" style="border-color:rgba(255,204,0,.3);color:var(--gold);background:rgba(255,204,0,.06)">MAXSUS KIRISH</div>
+      </div>
+      <div class="auth-body">
+        <div class="inp-g"><span class="inp-ic">🔑</span><input class="a-input" id="adm-code" type="password" placeholder="Admin kodni kiriting" onkeydown="if(event.key==='Enter')checkAdmin()"></div>
+        <button class="a-btn" onclick="checkAdmin()">TASDIQLASH</button>
+        <button class="a-btn" style="margin-top:10px;background:transparent;border:1px solid var(--border2);color:var(--muted)" onclick="closeAdmScr()">BEKOR QILISH</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-logo"><span class="r">Donate</span>Roblox</div>
+    <div class="tb-right">
+      <div class="bal-pill" id="bal-pill">💰 <span id="bal-num">0</span> so'm</div>
+      <button class="adm-pill" onclick="openAdmScr()">ADM</button>
+      <div class="tb-av" id="tb-av" onclick="navigate('settings')">
+        <span id="tb-av-l">U</span><img id="tb-av-img" src="" alt="">
+      </div>
+    </div>
+  </div>
+
+  <div class="nav" id="main-nav">
+    <div class="ni active" onclick="navigate('home')">🏠 ASOSIY</div>
+    <div class="ni" onclick="navigate('shop')">🛒 SHOP</div>
+    <div class="ni" onclick="navigate('wallet')">💳 BALANS</div>
+    <div class="ni" onclick="navigate('history')">📋 TARIX</div>
+    <div class="ni" onclick="navigate('settings')">⚙️ SOZLAMALAR</div>
+  </div>
+
+  <div class="content">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="wb">
+        <div class="wb-badge">JONLI</div>
+        <div class="wb-title">Salom! Bu <span class="hi">Uzbekistondagi</span><br>birinchi AvtoRobux sayt.</div>
+        <div class="wb-desc">Tez, xavfsiz va qulay tarzda Robux sotib oling. Avtomatik tizim orqali bir necha daqiqada Roblox akkauntingizga yetkaziladi.</div>
+        <a href="https://t.me/ayubkhan_533" target="_blank" class="dev-link"><span>✈️</span><span>RAZRABOTCHIK</span></a>
+      </div>
+      <div class="stitle"><span class="ac">◆</span> MASHHUR PAKETLAR</div>
+      <div class="shop-grid">
+        <div class="sc" onclick="openBuy(40,'7.000',7000)"><div class="sc-icon">💎</div><div class="sc-amt">40</div><div class="sc-lbl">ROBUX</div><div class="sc-price">7.000 so'm</div><button class="sc-btn">SOTIB OLISH</button></div>
+        <div class="sc pop" onclick="openBuy(80,'14.000',14000)"><div class="pop-badge">MASHHUR</div><div class="sc-icon">💎</div><div class="sc-amt">80</div><div class="sc-lbl">ROBUX</div><div class="sc-price">14.000 so'm</div><button class="sc-btn">SOTIB OLISH</button></div>
+        <div class="sc" onclick="openBuy(120,'21.000',21000)"><div class="sc-icon">💎</div><div class="sc-amt">120</div><div class="sc-lbl">ROBUX</div><div class="sc-price">21.000 so'm</div><button class="sc-btn">SOTIB OLISH</button></div>
+      </div>
+    </div>
+
+    <!-- SHOP -->
+    <div class="page" id="page-shop">
+      <div class="stitle"><span class="ac">◆</span> BARCHA PAKETLAR</div>
+      <div class="shop-grid">
+        <div class="sc" onclick="openBuy(40,'7.000',7000)"><div class="sc-icon">💎</div><div class="sc-amt">40</div><div class="sc-lbl">ROBUX</div><div class="sc-price">7.000 so'm</div><button class="sc-btn">SOTIB OLISH</button></div>
+        <div class="sc pop" onclick="openBuy(80,'14.000',14000)"><div class="pop-badge">MASHHUR</div><div class="sc-icon">💎</div><div class="sc-amt">80</div><div class="sc-lbl">ROBUX</div><div class="sc-price">14.000 so'm</div><button class="sc-btn">SOTIB OLISH</button></div>
+        <div class="sc" onclick="openBuy(120,'21.000',21000)"><div class="sc-icon">💎</div><div class="sc-amt">120</div><div class="sc-lbl">ROBUX</div><div class="sc-price">21.000 so'm</div><button class="sc-btn">SOTIB OLISH</button></div>
+        <div class="sc" onclick="openBuy(160,'28.000',28000)"><div class="sc-icon">💎</div><div class="sc-amt">160</div><div class="sc-lbl">ROBUX</div><div class="sc-price">28.000 so'm</div><button class="sc-btn">SOTIB OLISH</button></div>
+        <div class="sc pop" onclick="openBuy(200,'36.000',36000)"><div class="pop-badge">TOP</div><div class="sc-icon">🌟</div><div class="sc-amt">200</div><div class="sc-lbl">ROBUX</div><div class="sc-price">36.000 so'm</div><button class="sc-btn">SOTIB OLISH</button></div>
+      </div>
+    </div>
+
+    <!-- WALLET -->
+    <div class="page" id="page-wallet">
+      <div class="stitle"><span class="ac">◆</span> BALANS TO'LDIRISH</div>
+      <div class="wcard">
+        <div class="s-label">TO'LOV KARTASI</div>
+        <div class="card-disp">
+          <div class="card-num">**** **** **** 9325</div>
+          <div class="card-sub">Shu kartaga pul o'tkazing</div>
+        </div>
+        <button class="copy-btn" id="copy-btn" onclick="copyCard()">📋 KARTA RAQAMINI NUSXALASH</button>
+        <div class="min-warn">⚠️ Minimal to'ldirish: <strong style="margin-left:4px">7.000 so'm</strong></div>
+      </div>
+      <div class="wcard">
+        <div class="s-label">TO'LOV TASDIQLASH SO'ROVI</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Pul o'tkazgandan so'ng miqdorni kiriting. Admin tasdiqlaydi va balansingiz to'ldiriladi.</p>
+        <input class="w-input" id="dep-amt" type="number" placeholder="Miqdor (so'm)">
+        <button class="g-btn" onclick="reqDeposit()">📤 SO'ROV YUBORISH</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="page" id="page-history">
+      <div class="stitle"><span class="ac">◆</span> TO'LOVLAR TARIXI</div>
+      <div style="background:var(--card);border:1px solid var(--border2);overflow:hidden">
+        <table class="htbl">
+          <thead><tr><th>SANA</th><th>TURI</th><th>TAFSILOT</th><th>MIQDOR</th><th>HOLAT</th></tr></thead>
+          <tbody id="hist-body"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px;font-size:14px">Tarix bo'sh</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="stitle"><span class="ac">◆</span> SOZLAMALAR</div>
+      <div class="s-card">
+        <div class="s-label">PROFIL RASMI</div>
+        <div class="av-wrap">
+          <div class="big-av" onclick="document.getElementById('av-file').click()">
+            <span id="big-av-l">U</span><img id="big-av-img" src="" alt="">
+          </div>
+          <div><div style="font-size:15px;font-weight:600;margin-bottom:4px">Rasm yuklash</div><div style="font-size:12px;color:var(--muted)">Bosing va rasm tanlang</div></div>
+          <input type="file" id="av-file" accept="image/*" style="display:none" onchange="uploadAv(event)">
+        </div>
+      </div>
+      <div class="s-card">
+        <div class="s-label">AKKAUNT MA'LUMOTLARI</div>
+        <div class="ir"><span class="ik">Ism</span><span class="iv" id="s-name">-</span></div>
+        <div class="ir"><span class="ik">Akkaunt ID</span><span class="iv" id="s-id">-</span></div>
+        <div class="ir"><span class="ik">Balans</span><span class="iv" id="s-bal">0 so'm</span></div>
+        <div class="ir"><span class="ik">Holat</span><span class="iv" style="color:var(--green)">● AKTIV</span></div>
+        <button class="out-btn" onclick="logout()">🚪 CHIQISH</button>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="page" id="page-admin">
+      <div class="stitle"><span class="ac">◆</span> ADMIN PANEL</div>
+
+      <div class="a-panel">
+        <div class="a-ptitle">⏳ KUTILAYOTGAN BALANS SO'ROVLARI <span class="a-cnt" id="dep-cnt">0</span></div>
+        <div id="dep-list"><div style="color:var(--muted);font-size:14px;padding:8px 0">Hozircha so'rovlar yo'q</div></div>
+      </div>
+
+      <div class="a-panel">
+        <div class="a-ptitle">🎮 ROBUX BUYURTMALARI <span class="a-cnt gold" id="ord-cnt">0</span></div>
+        <div id="ord-list"><div style="color:var(--muted);font-size:14px;padding:8px 0">Hozircha buyurtmalar yo'q</div></div>
+      </div>
+
+      <div class="a-panel">
+        <div class="a-ptitle">📨 BARCHA FOYDALANUVCHILARGA XABAR</div>
+        <textarea class="a-inp w" id="adm-sms" style="height:80px;resize:vertical" placeholder="Xabar matni..."></textarea>
+        <button class="g-btn" style="margin-top:8px" onclick="sendSMS()">📤 YUBORISH</button>
+      </div>
+
+      <div class="a-panel">
+        <div class="a-ptitle">💰 ID ORQALI BALANS QO'SHISH</div>
+        <input class="a-inp h" id="adm-bid" placeholder="Foydalanuvchi ID">
+        <input class="a-inp h" id="adm-bamt" type="number" placeholder="Miqdor">
+        <button class="g-btn" onclick="admAddBal()">✅ QO'SHISH</button>
+      </div>
+
+      <div class="a-panel">
+        <div class="a-ptitle">🚫 BAN / UNBAN</div>
+        <input class="a-inp h" id="adm-banid" placeholder="Foydalanuvchi ID">
+        <button class="g-btn" style="background:linear-gradient(135deg,#cc0000,#880000)" onclick="admBan()">BAN</button>
+        <button class="g-btn sec" onclick="admUnban()">UNBAN</button>
+      </div>
+
+      <div class="a-panel">
+        <div class="a-ptitle">👥 BARCHA AKKAUNTLAR</div>
+        <div id="adm-accs"><div style="color:var(--muted);font-size:14px">Bo'sh</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BUY MODAL -->
+<div class="modal-bg" id="buy-modal">
+  <div class="modal">
+    <h3>ROBUX SOTIB OLISH</h3>
+    <p id="buy-desc">40 Robux — 7.000 so'm</p>
+    <input class="w-input" id="buy-nick" placeholder="Roblox username (nickname)">
+    <div class="modal-btns">
+      <button class="g-btn" onclick="confirmBuy()">✅ BUYURTMA</button>
+      <button class="g-btn sec" onclick="closeBuyM()">BEKOR</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// STATE
+let U=null,users={},txs=[],orders=[],pending=[];
+let curTab='login',buyCtx={};
+
+function loadState(){
+  users=JSON.parse(localStorage.getItem('dr_u')||'{}');
+  txs=JSON.parse(localStorage.getItem('dr_t')||'[]');
+  orders=JSON.parse(localStorage.getItem('dr_o')||'[]');
+  pending=JSON.parse(localStorage.getItem('dr_p')||'[]');
+}
+function sv(k){
+  const m={u:'dr_u',t:'dr_t',o:'dr_o',p:'dr_p'};
+  const d={u:users,t:txs,o:orders,p:pending};
+  localStorage.setItem(m[k],JSON.stringify(d[k]));
+}
+loadState();
+
+// PARTICLES
+for(let i=0;i<18;i++){
+  const p=document.createElement('div');
+  p.className='particle';
+  p.style.cssText=`left:${Math.random()*100}vw;width:${Math.random()*3+1}px;height:${Math.random()*3+1}px;animation-duration:${Math.random()*12+8}s;animation-delay:${Math.random()*10}s;background:${Math.random()>.7?'var(--gold)':'var(--r)'};`;
+  document.body.appendChild(p);
+}
+
+// AUTH
+function authTab(t){
+  curTab=t;
+  document.querySelectorAll('.auth-tab').forEach((el,i)=>el.classList.toggle('active',(t==='login'&&i===0)||(t==='reg'&&i===1)));
+  document.getElementById('a-sub').textContent=t==='login'?'KIRISH':"RO'YXATDAN O'TISH";
+}
+
+function doAuth(){
+  const name=document.getElementById('a-name').value.trim();
+  const pass=document.getElementById('a-pass').value.trim();
+  if(!name||!pass){notify('Ism va parol kiriting!','error');return;}
+  if(curTab==='reg'){
+    if(users[name]){notify('Bu ism band!','error');return;}
+    users[name]={name,pass,balance:0,id:'DR'+Math.random().toString(36).substr(2,6).toUpperCase(),avatar:null,banned:false};
+    sv('u');notify("Ro'yxatdan o'tdingiz!",'success');
+  }
+  if(!users[name]){notify('Foydalanuvchi topilmadi!','error');return;}
+  if(users[name].pass!==pass){notify("Noto'g'ri parol!",'error');return;}
+  if(users[name].banned){notify('Akkauntingiz bloklangan!','error');return;}
+  U=users[name];
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').classList.add('show');
+  refreshUI();renderHistory();
+}
+
+function logout(){
+  U=null;
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('a-name').value='';document.getElementById('a-pass').value='';
+  const an=document.getElementById('admin-ni');if(an)an.remove();
+}
+
+// NAV
+const navPages=['home','shop','wallet','history','settings'];
+function navigate(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const idx=navPages.indexOf(page);
+  if(idx>=0)document.querySelectorAll('.ni')[idx].classList.add('active');
+  if(page==='history')renderHistory();
+  if(page==='settings')renderSettings();
+  if(page==='admin')renderAdmin();
+}
+
+// UI
+function refreshUI(){
+  if(!U)return;
+  document.getElementById('bal-num').textContent=U.balance.toLocaleString();
+  document.getElementById('tb-av-l').textContent=U.name[0].toUpperCase();
+  if(U.avatar){document.getElementById('tb-av-img').src=U.avatar;document.getElementById('tb-av-img').style.display='block';}
+  const pill=document.getElementById('bal-pill');
+  pill.classList.remove('bump');void pill.offsetWidth;pill.classList.add('bump');
+}
+
+function renderSettings(){
+  if(!U)return;
+  document.getElementById('s-name').textContent=U.name;
+  document.getElementById('s-id').textContent=U.id;
+  document.getElementById('s-bal').textContent=U.balance.toLocaleString()+" so'm";
+  document.getElementById('big-av-l').textContent=U.name[0].toUpperCase();
+  if(U.avatar){document.getElementById('big-av-img').src=U.avatar;document.getElementById('big-av-img').style.display='block';}
+}
+
+function renderHistory(){
+  if(!U)return;
+  const my=txs.filter(t=>t.uid===U.id);
+  const tb=document.getElementById('hist-body');
+  if(!my.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px;font-size:14px">Tarix bo\'sh</td></tr>';return;}
+  tb.innerHTML=my.map(t=>`<tr>
+    <td style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted)">${t.date}</td>
+    <td>${t.type}</td>
+    <td style="font-size:13px;color:var(--muted)">${t.detail}</td>
+    <td style="font-family:'Share Tech Mono',monospace;font-size:13px">${t.amount}</td>
+    <td><span class="badge ${t.status==='ok'?'b-g':t.status==='pending'?'b-y':'b-r'}">${t.status==='ok'?'✓ OK':t.status==='pending'?'⏳ KUTILMOQDA':'✗ RAD'}</span></td>
+  </tr>`).join('');
+}
+
+// SHOP
+function openBuy(r,p,ps){buyCtx={r,p,ps};document.getElementById('buy-desc').textContent=r+' Robux — '+p+" so'm";document.getElementById('buy-nick').value='';document.getElementById('buy-modal').classList.add('show');}
+function closeBuyM(){document.getElementById('buy-modal').classList.remove('show');}
+
+function confirmBuy(){
+  const nick=document.getElementById('buy-nick').value.trim();
+  if(!nick){notify('Roblox username kiriting!','error');return;}
+  const ord={id:'ORD'+Date.now(),uid:U.id,uname:U.name,nick,robux:buyCtx.r,price:buyCtx.p,priceSom:buyCtx.ps,date:new Date().toLocaleString('uz'),status:'pending'};
+  orders.push(ord);sv('o');
+  addTx('Robux Buyurtma','-'+buyCtx.p+" so'm",buyCtx.r+'R → '+nick,'pending');
+  closeBuyM();notify('✅ Buyurtma adminga yuborildi! Tasdiqlash kutilmoqda.','success');
+  updBadge();
+}
+
+// WALLET
+function copyCard(){
+  navigator.clipboard.writeText('4916990332219325').then(()=>{
+    const b=document.getElementById('copy-btn');
+    b.textContent='✅ NUSXALANDI!';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='📋 KARTA RAQAMINI NUSXALASH';b.classList.remove('ok');},2500);
+  }).catch(()=>notify('Qo\'lda nusxalang'));
+}
+
+function reqDeposit(){
+  const amount=parseInt(document.getElementById('dep-amt').value);
+  if(!amount||amount<7000){notify("Minimal miqdor 7.000 so'm!",'warning');return;}
+  const req={id:'DEP'+Date.now(),uid:U.id,uname:U.name,amount,date:new Date().toLocaleString('uz'),status:'pending'};
+  pending.push(req);sv('p');
+  addTx("Balans To'ldirish",'+'+amount.toLocaleString()+" so'm",'Karta orqali','pending');
+  document.getElementById('dep-amt').value='';
+  notify("📤 So'rovingiz adminga yuborildi!",'success');updBadge();
+}
+
+// ADMIN
+function openAdmScr(){document.getElementById('admin-screen').classList.add('show');document.getElementById('adm-code').value='';}
+function closeAdmScr(){document.getElementById('admin-screen').classList.remove('show');}
+
+function checkAdmin(){
+  if(document.getElementById('adm-code').value==='ayubxon2929'){
+    closeAdmScr();
+    if(!document.getElementById('admin-ni')){
+      const ni=document.createElement('div');
+      ni.className='ni';ni.id='admin-ni';
+      ni.innerHTML='🔐 ADMIN <span class="dot" id="adm-dot"></span>';
+      ni.onclick=()=>{navigate('admin');};
+      document.getElementById('main-nav').appendChild(ni);
+    }
+    navigate('admin');notify('Admin panelga xush kelibsiz!','success');
+  } else notify("Noto'g'ri kod!",'error');
+}
+
+function renderAdmin(){
+  renderDeps();renderOrds();renderAccs();updBadge();
+}
+
+function renderDeps(){
+  const items=pending.filter(p=>p.status==='pending');
+  document.getElementById('dep-cnt').textContent=items.length;
+  const el=document.getElementById('dep-list');
+  if(!items.length){el.innerHTML="<div style='color:var(--muted);font-size:14px;padding:8px 0'>Hozircha so'rovlar yo'q</div>";return;}
+  el.innerHTML=items.map(p=>`<div class="pitem">
+    <div><div class="pi-type">💳 Balans To'ldirish — <strong>${p.uname}</strong></div><div class="pi-det">${p.uid} · ${p.date}</div></div>
+    <div class="pi-amt">+${p.amount.toLocaleString()} so'm</div>
+    <div class="pi-btns">
+      <button class="g-btn grn sml" onclick="apprDep('${p.id}')">✓ TASDIQLASH</button>
+      <button class="g-btn sec sml" onclick="rejDep('${p.id}')">✗ RAD</button>
+    </div>
+  </div>`).join('');
+}
+
+function renderOrds(){
+  const items=orders.filter(o=>o.status==='pending');
+  document.getElementById('ord-cnt').textContent=items.length;
+  const el=document.getElementById('ord-list');
+  if(!items.length){el.innerHTML="<div style='color:var(--muted);font-size:14px;padding:8px 0'>Hozircha buyurtmalar yo'q</div>";return;}
+  el.innerHTML=items.map(o=>`<div class="pitem">
+    <div><div class="pi-type">🎮 <strong>${o.robux} Robux</strong> → ${o.nick}</div><div class="pi-det">${o.uname} (${o.uid}) · ${o.date}</div></div>
+    <div class="pi-amt">${o.price} so'm</div>
+    <div class="pi-btns">
+      <button class="g-btn grn sml" onclick="apprOrd('${o.id}')">✓ BAJARILDI</button>
+      <button class="g-btn sec sml" onclick="rejOrd('${o.id}')">✗ RAD</button>
+    </div>
+  </div>`).join('');
+}
+
+function renderAccs(){
+  const all=Object.values(users);
+  const el=document.getElementById('adm-accs');
+  if(!all.length){el.innerHTML="<div style='color:var(--muted);font-size:14px'>Bo'sh</div>";return;}
+  el.innerHTML=all.map(u=>`<div class="acc-row">
+    <div><div class="acc-n">${u.name}${u.banned?' <span style="color:var(--r);font-size:11px">[BAN]</span>':''}</div><div class="acc-i">${u.id}</div></div>
+    <div class="acc-b">${u.balance.toLocaleString()} so'm</div>
+  </div>`).join('');
+}
+
+function apprDep(id){
+  const d=pending.find(p=>p.id===id);if(!d)return;
+  d.status='approved';
+  if(users[d.uname]){users[d.uname].balance+=d.amount;sv('u');if(U&&U.id===d.uid){U.balance+=d.amount;refreshUI();}}
+  const tx=txs.find(t=>t.uid===d.uid&&t.detail.includes('Karta')&&t.status==='pending');
+  if(tx)tx.status='ok';
+  sv('p');sv('t');notify('✅ Balans tasdiqlandi!','success');renderAdmin();
+}
+function rejDep(id){
+  const d=pending.find(p=>p.id===id);if(!d)return;
+  d.status='rejected';
+  const tx=txs.find(t=>t.uid===d.uid&&t.detail.includes('Karta')&&t.status==='pending');
+  if(tx)tx.status='rejected';
+  sv('p');sv('t');notify('Rad etildi.','warning');renderAdmin();
+}
+function apprOrd(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  o.status='approved';
+  if(users[o.uname]){users[o.uname].balance=Math.max(0,users[o.uname].balance-o.priceSom);sv('u');if(U&&U.id===o.uid){U.balance=users[U.name].balance;refreshUI();}}
+  const tx=txs.find(t=>t.uid===o.uid&&t.detail.includes('→ '+o.nick)&&t.status==='pending');
+  if(tx)tx.status='ok';
+  sv('o');sv('t');notify('✅ Robux buyurtmasi bajarildi!','success');renderAdmin();
+}
+function rejOrd(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  o.status='rejected';
+  const tx=txs.find(t=>t.uid===o.uid&&t.detail.includes('→ '+o.nick)&&t.status==='pending');
+  if(tx)tx.status='rejected';
+  sv('o');sv('t');notify('Buyurtma rad etildi.','warning');renderAdmin();
+}
+
+function sendSMS(){
+  const t=document.getElementById('adm-sms').value.trim();
+  if(!t){notify('Xabar matni kiriting!','error');return;}
+  notify('✅ '+Object.keys(users).length+' ta foydalanuvchiga SMS yuborildi!','success');
+  document.getElementById('adm-sms').value='';
+}
+function admAddBal(){
+  const id=document.getElementById('adm-bid').value.trim();
+  const amt=parseInt(document.getElementById('adm-bamt').value);
+  const u=Object.values(users).find(u=>u.id===id);
+  if(!u){notify('Topilmadi!','error');return;}
+  if(!amt||amt<=0){notify('Miqdor kiriting!','error');return;}
+  u.balance+=amt;users[u.name]=u;sv('u');
+  if(U&&U.id===id){U.balance=u.balance;refreshUI();}
+  notify('✅ '+u.name+' ga '+amt.toLocaleString()+" so'm qo'shildi!",'success');renderAccs();
+}
+function admBan(){
+  const id=document.getElementById('adm-banid').value.trim();
+  const u=Object.values(users).find(u=>u.id===id);
+  if(!u){notify('Topilmadi!','error');return;}
+  u.banned=true;users[u.name]=u;sv('u');
+  notify('🚫 '+u.name+' ban qilindi!','warning');renderAccs();
+}
+function admUnban(){
+  const id=document.getElementById('adm-banid').value.trim();
+  const u=Object.values(users).find(u=>u.id===id);
+  if(!u){notify('Topilmadi!','error');return;}
+  u.banned=false;users[u.name]=u;sv('u');
+  notify('✅ '+u.name+' unban qilindi!','success');renderAccs();
+}
+
+// HELPERS
+function addTx(type,amount,detail,status){
+  txs.unshift({uid:U.id,date:new Date().toLocaleString('uz'),type,amount,detail,status});sv('t');
+}
+function updBadge(){
+  const cnt=pending.filter(p=>p.status==='pending').length+orders.filter(o=>o.status==='pending').length;
+  const d=document.getElementById('adm-dot');if(d)d.classList.toggle('show',cnt>0);
+}
+function uploadAv(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    U.avatar=ev.target.result;users[U.name]=U;sv('u');
+    document.getElementById('big-av-img').src=ev.target.result;document.getElementById('big-av-img').style.display='block';
+    document.getElementById('tb-av-img').src=ev.target.result;document.getElementById('tb-av-img').style.display='block';
+    notify('✅ Rasm saqlandi!','success');
+  };r.readAsDataURL(file);
+}
+let nT;
+function notify(msg,type='info'){
+  const n=document.getElementById('notif');
+  const ic=type==='success'?'✅':type==='error'?'❌':type==='warning'?'⚠️':'ℹ️';
+  n.innerHTML=ic+' '+msg;
+  n.className='notif show '+(type==='success'?'success':type==='warning'?'warning':'');
+  clearTimeout(nT);nT=setTimeout(()=>n.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>
